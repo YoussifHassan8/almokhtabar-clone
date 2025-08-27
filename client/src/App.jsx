@@ -1,3 +1,4 @@
+// App.js
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,13 +7,14 @@ import {
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Auth from "./pages/Auth";
+import Landing from "./pages/Landing";
 import UserProfile from "./components/UserProfile";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <p>Loading...</p>; // or your spinner
+    return <p>Loading...</p>;
   }
 
   if (!user) {
@@ -30,6 +32,15 @@ function App() {
           <Route path="/auth" element={<Auth />} />
 
           <Route
+            path="/landing"
+            element={
+              <ProtectedRoute>
+                <Landing />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/profile"
             element={
               <ProtectedRoute>
@@ -38,7 +49,7 @@ function App() {
             }
           />
 
-          <Route path="*" element={<Navigate to="/auth" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
