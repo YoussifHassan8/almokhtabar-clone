@@ -1,9 +1,16 @@
 // components/Navbar.js
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useFavorites } from "../contexts/FavoritesContext";
+import { useCart } from "../contexts/CartContext";
+import Checkout from "./Checkout";
 
 const Navbar = () => {
   const { user, signOut } = useAuth();
+  const { favorites } = useFavorites();
+  const { getCartCount, isCheckoutOpen, openCheckout, closeCheckout } = useCart();
+  const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -29,12 +36,18 @@ const Navbar = () => {
               <h1 className="text-xl font-bold text-red-600">AlMokhtabar</h1>
             </div>
             <div className="hidden sm:ml-8 sm:flex sm:space-x-2">
-              <a
-                href="#"
+              <button
+                onClick={() => navigate("/landing")}
                 className="text-red-600 border-red-500 inline-flex items-center px-3 py-2 rounded-md text-sm font-medium transition duration-200 bg-red-50"
               >
                 Dashboard
-              </a>
+              </button>
+              <button
+                onClick={() => navigate("/analytics")}
+                className="text-gray-700 hover:text-red-600 hover:bg-red-50 inline-flex items-center px-3 py-2 rounded-md text-sm font-medium transition duration-200"
+              >
+                Analytics
+              </button>
               <a
                 href="#"
                 className="text-gray-700 hover:text-red-600 hover:bg-red-50 inline-flex items-center px-3 py-2 rounded-md text-sm font-medium transition duration-200"
@@ -56,7 +69,34 @@ const Navbar = () => {
             </div>
           </div>
 
-          <div className="flex items-center">
+          <div className="flex items-center space-x-4">
+            <button 
+              onClick={openCheckout}
+              className="relative p-2 text-gray-600 hover:text-red-600 transition duration-200"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                ></path>
+              </svg>
+              {getCartCount() > 0 && (
+                <span className="absolute top-0 right-0 flex h-4 w-4 -mt-1 -mr-1">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex items-center justify-center rounded-full h-4 w-4 bg-red-500 text-xs text-white">
+                    {getCartCount()}
+                  </span>
+                </span>
+              )}
+            </button>
+
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -93,20 +133,41 @@ const Navbar = () => {
                     aria-orientation="vertical"
                     aria-labelledby="options-menu"
                   >
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 transition duration-150"
+                    <button
+                      onClick={() => {
+                        navigate("/profile");
+                        setIsDropdownOpen(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 transition duration-150"
                       role="menuitem"
                     >
                       Your Profile
-                    </a>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 transition duration-150"
+                    </button>
+                    <button
+                      onClick={() => {
+                        navigate("/favorites");
+                        setIsDropdownOpen(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 transition duration-150"
+                      role="menuitem"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span>Favorite Items</span>
+                        <span className="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">
+                          {favorites.tests.length + favorites.packages.length}
+                        </span>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => {
+                        // TODO: Navigate to settings page when implemented
+                        setIsDropdownOpen(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 transition duration-150"
                       role="menuitem"
                     >
                       Settings
-                    </a>
+                    </button>
                     <div className="border-t border-gray-100 my-1"></div>
                     <button
                       onClick={signOut}
@@ -122,6 +183,9 @@ const Navbar = () => {
           </div>
         </div>
       </div>
+      
+      {/* Checkout Modal */}
+      <Checkout isOpen={isCheckoutOpen} onClose={closeCheckout} />
     </nav>
   );
 };
