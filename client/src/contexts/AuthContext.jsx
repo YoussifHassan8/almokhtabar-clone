@@ -1,11 +1,11 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const API_BASE_URL = 'http://localhost:5000/api';
+  const API_BASE_URL = "http://localhost:5000/api";
 
   // Check if user is already authenticated on mount
   useEffect(() => {
@@ -23,16 +23,35 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
+        // Option A: Decode JWT locally (just to read uid/email if stored inside)
+        // Option B: Validate by calling backend /me (recommended to ensure token is valid)
+        const response = await fetch(`${API_BASE_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${storedToken}` }, // 👈 attach token
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+          return;
+        } else {
+          // Invalid token -> clear it
+          localStorage.removeItem("token");
+        }
+      }
+
+      // fallback to cookie method
       const response = await fetch(`${API_BASE_URL}/auth/me`, {
-        credentials: 'include',
+        credentials: "include",
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error("Auth check failed:", error);
     } finally {
       setLoading(false);
     }
@@ -41,16 +60,20 @@ export const AuthProvider = ({ children }) => {
   const signInWithGoogle = async (credential) => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/google`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({ credential }),
       });
 
       if (response.ok) {
         const data = await response.json();
+
+        // ✅ Save token to localStorage
+        localStorage.setItem("token", data.token);
+
         setUser(data.user);
         return { success: true, user: data.user };
       } else {
@@ -58,20 +81,21 @@ export const AuthProvider = ({ children }) => {
         return { success: false, error: error.error };
       }
     } catch (error) {
-      console.error('Google sign-in failed:', error);
-      return { success: false, error: 'Network error' };
+      console.error("Google sign-in failed:", error);
+      return { success: false, error: "Network error" };
     }
   };
 
   const signOut = async () => {
     try {
       await fetch(`${API_BASE_URL}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
       });
+      localStorage.removeItem("token"); // ✅ clear token
       setUser(null);
     } catch (error) {
-      console.error('Sign out failed:', error);
+      console.error("Sign out failed:", error);
     }
   };
 
@@ -82,9 +106,5 @@ export const AuthProvider = ({ children }) => {
     signOut,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
