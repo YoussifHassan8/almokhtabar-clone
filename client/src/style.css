@@ -1,1 +1,38 @@
 @import "tailwindcss";
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+/* Custom styles for the Google button to match our red theme */
+.gsi-material-button {
+  background-color: #ffffff;
+  background-image: none;
+  border: 1px solid #747775;
+  border-radius: 0.5rem;
+  color: #1f1f1f;
+  cursor: pointer;
+  height: 40px;
+  padding: 0;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.gsi-material-button:hover {
+  box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  background-color: #f8f9fa;
+}
+
+.gsi-material-button:active {
+  background-color: #ececec;
+}
