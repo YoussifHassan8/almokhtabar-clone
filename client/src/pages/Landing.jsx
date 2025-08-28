@@ -9,7 +9,14 @@ import QuickStatsChart from "../components/QuickStatsChart";
 const Landing = () => {
   const { user } = useAuth();
   const { toggleFavorite, isFavorite } = useFavorites();
-  const { cartItems, addToCart, removeFromCart, updateQuantity, getCartTotal, openCheckout } = useCart();
+  const {
+    cartItems,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    getCartTotal,
+    openCheckout,
+  } = useCart();
   const [activeTab, setActiveTab] = useState("tests");
 
   // Mock data for tests and packages
@@ -131,11 +138,19 @@ const Landing = () => {
                                 ? "text-red-600 bg-red-50"
                                 : "text-gray-400 hover:text-red-600 hover:bg-red-50"
                             }`}
-                            title={isFavorite(test.id, "tests") ? "Remove from favorites" : "Add to favorites"}
+                            title={
+                              isFavorite(test.id, "tests")
+                                ? "Remove from favorites"
+                                : "Add to favorites"
+                            }
                           >
                             <svg
                               className="w-5 h-5"
-                              fill={isFavorite(test.id, "tests") ? "currentColor" : "none"}
+                              fill={
+                                isFavorite(test.id, "tests")
+                                  ? "currentColor"
+                                  : "none"
+                              }
                               stroke="currentColor"
                               viewBox="0 0 24 24"
                             >
@@ -147,7 +162,7 @@ const Landing = () => {
                               />
                             </svg>
                           </button>
-                          <button 
+                          <button
                             onClick={() => addToCart(test, "tests")}
                             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm transition duration-200 transform hover:-translate-y-0.5"
                           >
@@ -183,11 +198,19 @@ const Landing = () => {
                                 ? "text-red-600 bg-red-50"
                                 : "text-gray-400 hover:text-red-600 hover:bg-red-50"
                             }`}
-                            title={isFavorite(pkg.id, "packages") ? "Remove from favorites" : "Add to favorites"}
+                            title={
+                              isFavorite(pkg.id, "packages")
+                                ? "Remove from favorites"
+                                : "Add to favorites"
+                            }
                           >
                             <svg
                               className="w-5 h-5"
-                              fill={isFavorite(pkg.id, "packages") ? "currentColor" : "none"}
+                              fill={
+                                isFavorite(pkg.id, "packages")
+                                  ? "currentColor"
+                                  : "none"
+                              }
                               stroke="currentColor"
                               viewBox="0 0 24 24"
                             >
@@ -199,7 +222,7 @@ const Landing = () => {
                               />
                             </svg>
                           </button>
-                          <button 
+                          <button
                             onClick={() => addToCart(pkg, "packages")}
                             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm transition duration-200 transform hover:-translate-y-0.5"
                           >
@@ -214,36 +237,58 @@ const Landing = () => {
             </div>
           </div>
 
-                       {/* Sidebar */}
-             <div className="space-y-6">
-               <QuickStatsChart />
-               
-               <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl p-6">
+          <div className="space-y-6">
+            <QuickStatsChart />
+
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
                 Your Cart
               </h3>
               {cartItems.length === 0 ? (
                 <div className="p-4 bg-gray-50 rounded-lg">
-                  <p className="text-center text-gray-500">Your cart is empty</p>
+                  <p className="text-center text-gray-500">
+                    Your cart is empty
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {cartItems.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    >
                       <div className="flex-1">
-                        <h4 className="text-sm font-medium text-gray-900">{item.name}</h4>
-                        <p className="text-xs text-gray-600">${item.price} x {item.quantity}</p>
+                        <h4 className="text-sm font-medium text-gray-900">
+                          {item.name}
+                        </h4>
+                        <p className="text-xs text-gray-600">
+                          ${item.price} x {item.quantity}
+                        </p>
                       </div>
                       <div className="flex items-center space-x-2">
                         <button
-                          onClick={() => updateQuantity(item.id, item.type, item.quantity - 1)}
+                          onClick={() =>
+                            updateQuantity(
+                              item.id,
+                              item.type,
+                              item.quantity - 1
+                            )
+                          }
                           className="w-6 h-6 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition duration-200"
                         >
                           -
                         </button>
-                        <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
+                        <span className="text-sm font-medium w-8 text-center">
+                          {item.quantity}
+                        </span>
                         <button
-                          onClick={() => updateQuantity(item.id, item.type, item.quantity + 1)}
+                          onClick={() =>
+                            updateQuantity(
+                              item.id,
+                              item.type,
+                              item.quantity + 1
+                            )
+                          }
                           className="w-6 h-6 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition duration-200"
                         >
                           +
@@ -261,79 +306,19 @@ const Landing = () => {
                 </div>
               )}
               <div className="mt-4 flex justify-between items-center">
-                <span className="text-gray-700 font-medium">Total: ${getCartTotal().toFixed(2)}</span>
-                <button 
+                <span className="text-gray-700 font-medium">
+                  Total: ${getCartTotal().toFixed(2)}
+                </span>
+                <button
                   onClick={openCheckout}
                   disabled={cartItems.length === 0}
                   className={`px-4 py-2 rounded-md text-sm transition duration-200 ${
                     cartItems.length === 0
-                      ? 'bg-gray-200 text-gray-700 cursor-not-allowed'
-                      : 'bg-red-600 text-white hover:bg-red-700'
+                      ? "bg-gray-200 text-gray-700 cursor-not-allowed"
+                      : "bg-red-600 text-white hover:bg-red-700"
                   }`}
                 >
                   Checkout
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Quick Actions
-              </h3>
-              <div className="space-y-3">
-                <button className="w-full flex items-center justify-between p-3 bg-red-50 hover:bg-red-100 rounded-lg transition duration-200">
-                  <span className="text-red-700 font-medium">
-                    Schedule Appointment
-                  </span>
-                  <svg
-                    className="w-5 h-5 text-red-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                    ></path>
-                  </svg>
-                </button>
-                <button className="w-full flex items-center justify-between p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition duration-200">
-                  <span className="text-purple-700 font-medium">
-                    Request Results
-                  </span>
-                  <svg
-                    className="w-5 h-5 text-purple-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    ></path>
-                  </svg>
-                </button>
-                <button className="w-full flex items-center justify-between p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition duration-200">
-                  <span className="text-blue-700 font-medium">
-                    Medical History
-                  </span>
-                  <svg
-                    className="w-5 h-5 text-blue-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                    ></path>
-                  </svg>
                 </button>
               </div>
             </div>

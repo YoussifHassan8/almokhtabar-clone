@@ -5,7 +5,6 @@ import { useCart } from "../contexts/CartContext";
 import Navbar from "../components/NavBar";
 
 const Favorites = () => {
-  const { user } = useAuth();
   const { favorites, removeFromFavorites } = useFavorites();
   const { addToCart } = useCart();
   const [activeTab, setActiveTab] = useState("tests");
