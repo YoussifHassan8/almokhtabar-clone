@@ -13,6 +13,7 @@ import Landing from "./pages/Landing";
 import UserProfile from "./components/UserProfile";
 import Favorites from "./pages/Favorites";
 import Analytics from "./pages/Analytics";
+import Branches from "./pages/Branches";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -36,7 +37,7 @@ function App() {
           <Router>
             <Routes>
               <Route path="/auth" element={<Auth />} />
-
+              <Route path="/branches" element={<Branches />} />
               <Route
                 path="/landing"
                 element={
@@ -55,25 +56,25 @@ function App() {
                 }
               />
 
-                          <Route
-              path="/favorites"
-              element={
-                <ProtectedRoute>
-                  <Favorites />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/favorites"
+                element={
+                  <ProtectedRoute>
+                    <Favorites />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/analytics"
-              element={
-                <ProtectedRoute>
-                  <Analytics />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/analytics"
+                element={
+                  <ProtectedRoute>
+                    <Analytics />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route path="*" element={<Navigate to="/landing" replace />} />
+              <Route path="*" element={<Navigate to="/landing" replace />} />
             </Routes>
           </Router>
         </CartProvider>

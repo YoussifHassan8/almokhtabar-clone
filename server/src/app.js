@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.js";
+import fetch from "node-fetch"; // Add this import
 
 const app = express();
 
@@ -19,6 +20,44 @@ app.use(
 
 // Health check
 app.get("/health", (_req, res) => res.json({ ok: true }));
+
+// Proxy route for branches
+app.post("/api/branches", async (req, res) => {
+  try {
+    const { latitude, longitude } = req.body;
+
+    if (!latitude || !longitude) {
+      return res
+        .status(400)
+        .json({ error: "Latitude and longitude are required" });
+    }
+
+    const response = await fetch(
+      "https://almokhtabar.com/wp-admin/admin-ajax.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          action: "get_nearest_branches",
+          latitude: latitude.toString(),
+          longitude: longitude.toString(),
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`External API responded with status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error("Proxy error:", error);
+    res.status(500).json({ error: "Failed to fetch branches" });
+  }
+});
 
 // Routes
 app.use("/api/auth", authRoutes);

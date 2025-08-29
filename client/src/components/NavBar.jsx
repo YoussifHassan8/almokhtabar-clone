@@ -19,6 +19,7 @@ import {
   IoChevronDown,
   IoMenu,
   IoClose,
+  IoLocation,
 } from "react-icons/io5";
 
 const Navbar = () => {
@@ -58,7 +59,7 @@ const Navbar = () => {
   const navItems = [
     { path: "/landing", name: "Dashboard", icon: IoHomeOutline },
     { path: "/analytics", name: "Analytics", icon: IoAnalyticsOutline },
-    { path: "/results", name: "Results", icon: IoDocumentTextOutline },
+    { path: "/branches", name: "Branches", icon: IoLocation },
     { path: "/appointments", name: "Appointments", icon: IoCalendarOutline },
     { path: "/history", name: "History", icon: IoTimeOutline },
   ];
