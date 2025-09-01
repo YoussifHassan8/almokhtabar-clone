@@ -1,5 +1,5 @@
 // pages/Dashboard.js
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useFavorites } from "../contexts/FavoritesContext";
 import { useCart } from "../contexts/CartContext";
@@ -25,6 +25,10 @@ const Landing = () => {
   } = useCart();
   const [activeTab, setActiveTab] = useState("tests");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+
+  const statsRef = useRef(null);
+  const cartRef = useRef(null);
 
   // Mock data for tests and packages
   const tests = [
@@ -124,6 +128,48 @@ const Landing = () => {
     },
   ];
 
+  // Logo loop animation styles
+  const logoLoopStyle = `
+    @keyframes logo-spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    .logo-loop {
+      animation: logo-spin infinite 20s linear;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .logo-loop {
+        animation: none;
+      }
+    }
+  `;
+
+  // Fade-in animation for elements on scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (statsRef.current) observer.observe(statsRef.current);
+    if (cartRef.current) observer.observe(cartRef.current);
+
+    return () => {
+      if (statsRef.current) observer.unobserve(statsRef.current);
+      if (cartRef.current) observer.unobserve(cartRef.current);
+    };
+  }, []);
+
   // Auto-rotate carousel
   useEffect(() => {
     const interval = setInterval(() => {
@@ -148,21 +194,73 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <style>{logoLoopStyle}</style>
       <Navbar />
 
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        {/* Welcome Header */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 mb-8 border-l-4 border-red-600">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {user.name}!
-          </h1>
-          <p className="mt-2 text-gray-600">
-            Here's your latest activity and results at AlMokhtabar Laboratory
-          </p>
+        {/* Welcome Header with Logo */}
+        <div className="bg-white rounded-2xl shadow-sm p-6 mb-8 border-l-4 border-red-600 transform transition-all duration-500 hover:scale-[1.01]">
+          <div className="flex items-center">
+            {/* Logo with spinning animation */}
+            <div className="relative w-16 h-16 mr-4">
+              <div className="absolute inset-0 bg-red-600 rounded-xl flex items-center justify-center logo-loop">
+                <svg
+                  className="w-10 h-10 text-white"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M12 6V2"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M12 22V18"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M6 12H2"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M22 12H18"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Welcome back, {user.name}!
+              </h1>
+              <p className="mt-2 text-gray-600">
+                Here's your latest activity and results at AlMokhtabar
+                Laboratory
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Promotional Carousel */}
-        <div className="relative h-56 mb-8 rounded-2xl overflow-hidden shadow-lg">
+        <div className="relative h-56 mb-8 rounded-2xl overflow-hidden shadow-lg transform transition-all duration-500 hover:shadow-xl">
           {carouselItems.map((item, index) => (
             <div
               key={item.id}
@@ -172,9 +270,11 @@ const Landing = () => {
             >
               <div className="flex items-center justify-center h-full px-8">
                 <div className="text-center text-white">
-                  <h2 className="text-2xl font-bold mb-2">{item.title}</h2>
+                  <h2 className="text-2xl font-bold mb-2 animate-pulse">
+                    {item.title}
+                  </h2>
                   <p className="mb-4">{item.description}</p>
-                  <button className="px-6 py-2 bg-white text-gray-800 font-medium rounded-full hover:bg-gray-100 transition-colors">
+                  <button className="px-6 py-2 bg-white text-gray-800 font-medium rounded-full hover:bg-gray-100 transition-all duration-300 transform hover:scale-105">
                     {item.cta}
                   </button>
                 </div>
@@ -185,13 +285,13 @@ const Landing = () => {
           {/* Carousel Controls */}
           <button
             onClick={prevSlide}
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-colors"
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-all duration-300 opacity-80 hover:opacity-100"
           >
             <GoChevronLeft className="w-5 h-5 text-gray-700" />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-colors"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-all duration-300 opacity-80 hover:opacity-100"
           >
             <GoChevronRight className="w-5 h-5 text-gray-700" />
           </button>
@@ -217,7 +317,7 @@ const Landing = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden transform transition-all duration-500 hover:shadow-md">
               <div className="border-b border-gray-100">
                 <div className="flex justify-between items-center px-6 py-4">
                   <h2 className="text-xl font-semibold text-gray-900">
@@ -226,9 +326,9 @@ const Landing = () => {
                   <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
                     <button
                       onClick={() => setActiveTab("tests")}
-                      className={`px-4 py-2 text-sm font-medium rounded-md transition duration-200 ${
+                      className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-300 ${
                         activeTab === "tests"
-                          ? "bg-white text-red-600 shadow-sm"
+                          ? "bg-white text-red-600 shadow-sm transform scale-105"
                           : "text-gray-600 hover:text-red-600"
                       }`}
                     >
@@ -236,9 +336,9 @@ const Landing = () => {
                     </button>
                     <button
                       onClick={() => setActiveTab("packages")}
-                      className={`px-4 py-2 text-sm font-medium rounded-md transition duration-200 ${
+                      className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-300 ${
                         activeTab === "packages"
-                          ? "bg-white text-red-600 shadow-sm"
+                          ? "bg-white text-red-600 shadow-sm transform scale-105"
                           : "text-gray-600 hover:text-red-600"
                       }`}
                     >
@@ -252,10 +352,15 @@ const Landing = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {activeTab === "tests" ? (
                     <>
-                      {tests.map((test) => (
+                      {tests.map((test, index) => (
                         <div
                           key={test.id}
-                          className="border border-gray-200 rounded-xl hover:shadow-md transition-all duration-300 p-5"
+                          className="border border-gray-200 rounded-xl hover:shadow-md transition-all duration-300 p-5 transform hover:-translate-y-1"
+                          style={{
+                            animationDelay: `${index * 0.1}s`,
+                            animation: "fadeIn 0.5s ease-out forwards",
+                            opacity: 0,
+                          }}
                         >
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
@@ -271,9 +376,9 @@ const Landing = () => {
                             </div>
                             <button
                               onClick={() => toggleFavorite(test, "tests")}
-                              className={`p-2 rounded-md transition duration-200 ${
+                              className={`p-2 rounded-md transition-all duration-300 ${
                                 isFavorite(test.id, "tests")
-                                  ? "text-red-600 bg-red-50"
+                                  ? "text-red-600 bg-red-50 transform scale-110"
                                   : "text-gray-400 hover:text-red-600 hover:bg-red-50"
                               }`}
                               title={
@@ -306,7 +411,7 @@ const Landing = () => {
                             </span>
                             <button
                               onClick={() => addToCart(test, "tests")}
-                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm transition duration-200 shadow-md hover:shadow-lg"
+                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
                             >
                               Add to Cart
                             </button>
@@ -316,16 +421,21 @@ const Landing = () => {
                     </>
                   ) : (
                     <>
-                      {packages.map((pkg) => (
+                      {packages.map((pkg, index) => (
                         <div
                           key={pkg.id}
-                          className={`border border-gray-200 rounded-xl hover:shadow-md transition-all duration-300 p-5 ${
+                          className={`border border-gray-200 rounded-xl hover:shadow-md transition-all duration-300 p-5 transform hover:-translate-y-1 ${
                             pkg.popular ? "ring-2 ring-red-500" : ""
                           }`}
+                          style={{
+                            animationDelay: `${index * 0.1}s`,
+                            animation: "fadeIn 0.5s ease-out forwards",
+                            opacity: 0,
+                          }}
                         >
                           {pkg.popular && (
                             <div className="flex justify-end mb-2">
-                              <span className="text-xs font-medium text-white bg-red-500 px-2 py-1 rounded-full">
+                              <span className="text-xs font-medium text-white bg-red-500 px-2 py-1 rounded-full animate-pulse">
                                 Most Popular
                               </span>
                             </div>
@@ -344,9 +454,9 @@ const Landing = () => {
                             </div>
                             <button
                               onClick={() => toggleFavorite(pkg, "packages")}
-                              className={`p-2 rounded-md transition duration-200 ${
+                              className={`p-2 rounded-md transition-all duration-300 ${
                                 isFavorite(pkg.id, "packages")
-                                  ? "text-red-600 bg-red-50"
+                                  ? "text-red-600 bg-red-50 transform scale-110"
                                   : "text-gray-400 hover:text-red-600 hover:bg-red-50"
                               }`}
                               title={
@@ -389,7 +499,7 @@ const Landing = () => {
                             </div>
                             <button
                               onClick={() => addToCart(pkg, "packages")}
-                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm transition duration-200 shadow-md hover:shadow-lg"
+                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
                             >
                               Add to Cart
                             </button>
@@ -404,15 +514,31 @@ const Landing = () => {
           </div>
 
           <div className="space-y-6">
-            <QuickStatsChart />
+            <div
+              ref={statsRef}
+              className={`transition-all duration-700 ${
+                isVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-4"
+              }`}
+            >
+              <QuickStatsChart />
+            </div>
 
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div
+              ref={cartRef}
+              className={`bg-white rounded-2xl shadow-sm overflow-hidden transition-all duration-700 ${
+                isVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-4"
+              }`}
+            >
               <div className="border-b border-gray-100 px-6 py-4">
                 <h3 className="text-lg font-medium text-gray-900">Your Cart</h3>
               </div>
               <div className="p-6">
                 {cartItems.length === 0 ? (
-                  <div className="p-4 bg-gray-50 rounded-lg text-center">
+                  <div className="p-4 bg-gray-50 rounded-lg text-center transform transition-all duration-300 hover:scale-[1.02]">
                     <p className="text-gray-500">Your cart is empty</p>
                     <p className="text-sm text-gray-400 mt-1">
                       Add tests or packages to continue
@@ -423,7 +549,7 @@ const Landing = () => {
                     {cartItems.map((item, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg transform transition-all duration-300 hover:scale-[1.02]"
                       >
                         <div className="flex-1">
                           <h4 className="text-sm font-medium text-gray-900">
@@ -442,7 +568,7 @@ const Landing = () => {
                                 item.quantity - 1
                               )
                             }
-                            className="w-6 h-6 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition duration-200"
+                            className="w-6 h-6 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-all duration-200 transform hover:scale-110"
                           >
                             -
                           </button>
@@ -457,13 +583,13 @@ const Landing = () => {
                                 item.quantity + 1
                               )
                             }
-                            className="w-6 h-6 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition duration-200"
+                            className="w-6 h-6 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-all duration-200 transform hover:scale-110"
                           >
                             +
                           </button>
                           <button
                             onClick={() => removeFromCart(item.id, item.type)}
-                            className="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition duration-200"
+                            className="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-all duration-200 transform hover:scale-110"
                             title="Remove item"
                           >
                             ×
@@ -480,7 +606,7 @@ const Landing = () => {
                   <button
                     onClick={openCheckout}
                     disabled={cartItems.length === 0}
-                    className={`px-4 py-2 rounded-lg text-sm transition duration-200 ${
+                    className={`px-4 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 ${
                       cartItems.length === 0
                         ? "bg-gray-200 text-gray-700 cursor-not-allowed"
                         : "bg-red-600 text-white hover:bg-red-700 shadow-md hover:shadow-lg"
@@ -494,6 +620,19 @@ const Landing = () => {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 };
